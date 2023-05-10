@@ -80,9 +80,9 @@ class aclient(discord.Client):
             response = (f'> **{user_message}** - <@{str(author)}> ({chat_model_status}) \n\n')
             if self.chat_model == "OFFICIAL":
                 ai_response = await responses.official_handle_response(user_message, self)
-                #print(await db["code-games"].list_collection_names())
-                persisted_record = {"ai_response": ai_response, "timestamp": dt.datetime.utcnow()}
-                print(await db["code-games"]["test"].insert_one(persisted_record))
+                if "summary" == user_message.strip().lower():
+                    persisted_record = {"ai_summary": ai_response, "timestamp": dt.datetime.utcnow()}
+                    print(await db["code-games"]["test"].insert_one(persisted_record))
                 response = f"{response}{ai_response}"
             char_limit = 1900
 

@@ -6,9 +6,13 @@ from random import randrange
 from src.aclient import client
 from discord import app_commands
 from src import log, responses
+from motor.motor_asyncio import AsyncIOMotorClient
+from pymongo.server_api import ServerApi
 
 logger = log.setup_logger(__name__)
 current_persona = "standard"
+
+db = AsyncIOMotorClient(os.getenv("MONGO_CONN_URI"), server_api=ServerApi('1'))
 
 def run_discord_bot():
     @client.event
@@ -48,7 +52,7 @@ def run_discord_bot():
         username = str(interaction.user)
         channel = str(interaction.channel)
         logger.info("Interaction.channel is: " + str(interaction.channel))
-        await client.enqueue_message(interaction, ''.join(open("./prompts/startsession.txt", "r").readlines()).strip())
+        await client.enqueue_message(interaction, f"{''.join(open('./prompts/startsession.txt', 'r').readlines()).strip()} {(await db['code-games']['test'].find_one({}))['ai_summary']}")
         logger.info("Working session with tickets started")
 
     @client.tree.command(name="ticket", description="Add new ticket")
@@ -80,6 +84,24 @@ def run_discord_bot():
         channel = str(interaction.channel)
         await client.enqueue_message(interaction, "Ticket is " + ticketnumber + ". Add this log entry to this ticket: " + ticketlog)
         logger.info("New ticket initialized")
+
+    @client.tree.command(name="summarize", description="Summarize a ticket")
+    async def summarize(interaction: discord.Interaction, *, ticket_id: str):
+        if client.is_replying_all == "True":
+            await interaction.response.defer(ephemeral=False)
+            await interaction.followup.send(
+                "> **WARN: You already on replyAll mode. If you want to use the Slash Command, switch to normal mode by using `/replyall` again**")
+            logger.warning("\x1b[31mYou already on replyAll mode, can't use slash command!\x1b[0m")
+            return
+        if interaction.user == client.user:
+            return
+        username = str(interaction.user)
+        channel = str(interaction.channel)
+        message = f"summarize {ticket_id}"
+
+        logger.info(
+            f"\x1b[31m{username}\x1b[0m : /chat [{message}] in ({channel})")
+        await client.enqueue_message(interaction, message)
 
 
     @client.tree.command(name="selectrole", description="Select role for accessing the tickets")
@@ -116,8 +138,7 @@ def run_discord_bot():
         username = str(interaction.user)
         channel = str(interaction.channel)
         logger.info("Working session with tickets stopped")
-        await client.enqueue_message(interaction, ''.join(open("./prompts/stopsession.txt", "r").readlines()).strip())
-
+        await client.enqueue_message(interaction, f"summary")
 
     @client.tree.command(name="private", description="Toggle private access")
     async def private(interaction: discord.Interaction):
