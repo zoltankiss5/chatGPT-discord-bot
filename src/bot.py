@@ -245,7 +245,7 @@ def run_discord_bot():
                     username = str(message.author)
                     now = datetime.datetime.now()
                     formatted_date = now.strftime("%Y-%m-%d %H:%M")
-                    user_message = str(formatted_date + message.content)
+                    user_message = str(formatted_date + ' '+ message.content)
                     channel = str(message.channel)
                     logger.info(f"\x1b[31m{username}\x1b[0m : '{user_message}' ({channel})")
                     await client.enqueue_message(message, user_message)
