@@ -158,9 +158,9 @@
 ## Commands
 
 * `/chat [message]` Chat with ChatGPT!
-* `/draw [prompt]` Generate an image with the Dalle2 model
-* `/switchpersona [persona]` Switch between optional chatGPT jailbreaks
-   * `random`: Picks a random persona
+<!-- * `/draw [prompt]` Generate an image with the Dalle2 model -->
+<!-- * `/switchpersona [persona]` Switch between optional chatGPT jailbreaks -->
+   <!-- * `random`: Picks a random persona -->
    * `chatGPT`: Standard chatGPT mode
    * `dan`: Dan Mode 11.0, infamous Do Anything Now Mode
    * `sda`: Superior DAN has even more freedom in DAN Mode
