@@ -16,7 +16,7 @@ from pymongo.server_api import ServerApi
 logger = log.setup_logger(__name__)
 load_dotenv()
 
-DEBUG = False
+DEBUG = os.getenv("ECHO_SENT_MSGS")
 
 db = AsyncIOMotorClient(os.getenv("MONGO_CONN_URI"), server_api=ServerApi('1'))
 
