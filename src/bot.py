@@ -2,6 +2,7 @@ import os
 import openai
 import asyncio
 import discord
+import datetime
 from random import randrange
 from src.aclient import client
 from discord import app_commands
@@ -242,7 +243,9 @@ def run_discord_bot():
             if client.replying_all_discord_channel_id:
                 if message.channel.id == int(client.replying_all_discord_channel_id):
                     username = str(message.author)
-                    user_message = str(message.content)
+                    now = datetime.datetime.now()
+                    formatted_date = now.strftime("%Y-%m-%d %H:%M")
+                    user_message = str(formatted_date + message.content)
                     channel = str(message.channel)
                     logger.info(f"\x1b[31m{username}\x1b[0m : '{user_message}' ({channel})")
                     await client.enqueue_message(message, user_message)
