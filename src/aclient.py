@@ -79,13 +79,13 @@ class aclient(discord.Client):
                 chat_model_status = f'ChatGPT {self.openAI_gpt_engine}'
             elif self.chat_model == "OFFICIAL":
                 chat_model_status = f'OpenAI {self.openAI_gpt_engine}'
-            if DEBUG:
+            if DEBUG == "True":
                 response = (f'> **{user_message}** - <@{str(author)}> ({chat_model_status}) \n\n')
-            else:
+            elif DEBUG == "False":
                 response = ""
             if self.chat_model == "OFFICIAL":
                 ai_response = await responses.official_handle_response(user_message, self)
-                if "summary" == user_message.strip().lower():
+                if "stopsession" == user_message.strip().lower():
                     persisted_record = {"ai_summary": ai_response, "timestamp": dt.datetime.utcnow()}
                     print(await db["code-games"][str(os.getenv("REPLYING_ALL_DISCORD_CHANNEL_ID"))].insert_one(persisted_record))
                 response = f"{response}{ai_response}"
