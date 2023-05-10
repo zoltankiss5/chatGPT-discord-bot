@@ -85,7 +85,7 @@ class aclient(discord.Client):
                 response = ""
             if self.chat_model == "OFFICIAL":
                 ai_response = await responses.official_handle_response(user_message, self)
-                if "Could you please summerize our conversation so far, per ticket?" == user_message.strip():
+                if f"{''.join(open('./prompts/stopsession.txt', 'r').readlines()).strip()}" == user_message.strip():
                     persisted_record = {"ai_summary": ai_response, "timestamp": dt.datetime.utcnow()}
                     print(await db["code-games"][str(os.getenv("REPLYING_ALL_DISCORD_CHANNEL_ID"))].insert_one(persisted_record))
                 response = f"{response}{ai_response}"
