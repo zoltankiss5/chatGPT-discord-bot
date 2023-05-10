@@ -50,11 +50,7 @@ class aclient(discord.Client):
         if self.chat_model == "UNOFFICIAL":
             return AsyncChatbot(config={"email": self.openAI_email, "password": self.openAI_password, "access_token": self.chatgpt_access_token, "model": self.openAI_gpt_engine, "paid": self.chatgpt_paid})
         elif self.chat_model == "OFFICIAL":
-                return Chatbot(api_key=self.openAI_API_key, engine=self.openAI_gpt_engine, system_prompt=prompt)
-        elif self.chat_model == "Bard":
-            return BardChatbot(session_id=self.bard_session_id)
-        elif self.chat_model == "Bing":
-            return EdgeChatbot(cookie_path='./cookies.json')
+            return Chatbot(api_key=self.openAI_API_key, engine=self.openAI_gpt_engine, system_prompt=prompt)
 
     async def process_messages(self):
         while True:
@@ -88,12 +84,6 @@ class aclient(discord.Client):
                 persisted_record = {"ai_response": ai_response, "timestamp": dt.datetime.utcnow()}
                 print(await db["code-games"]["test"].insert_one(persisted_record))
                 response = f"{response}{ai_response}"
-            elif self.chat_model == "UNOFFICIAL":
-                response = f"{response}{await responses.unofficial_handle_response(user_message, self)}"
-            elif self.chat_model == "Bard":
-                response = f"{response}{await responses.bard_handle_response(user_message, self)}"
-            elif self.chat_model == "Bing":
-                response = f"{response}{await responses.bing_handle_response(user_message, self)}"
             char_limit = 1900
 
             if len(response) > char_limit:
