@@ -143,7 +143,7 @@ def run_discord_bot():
         username = str(interaction.user)
         channel = str(interaction.channel)
         logger.info("Working session with tickets stopped")
-        await client.enqueue_message(interaction, f"summary")
+        await client.enqueue_message(interaction, f"history")
 
     @client.tree.command(name="private", description="Toggle private access")
     async def private(interaction: discord.Interaction):
