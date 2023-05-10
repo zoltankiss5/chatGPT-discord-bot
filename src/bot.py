@@ -83,7 +83,7 @@ def run_discord_bot():
 
 
     @client.tree.command(name="selectrole", description="Select role for accessing the tickets")
-    async def startsession(interaction: discord.Interaction, *, roleselection: str):
+    async def selectrole(interaction: discord.Interaction, *, roleselection: str):
         if client.is_replying_all == "True":
             await interaction.response.defer(ephemeral=False)
             await interaction.followup.send(
@@ -104,7 +104,7 @@ def run_discord_bot():
         logger.info("Role selected for session is {roleselection}")
 
     @client.tree.command(name="stopsession", description="Stop working session with tickets")
-    async def startsession(interaction: discord.Interaction):
+    async def stopsession(interaction: discord.Interaction):
         if client.is_replying_all == "True":
             await interaction.response.defer(ephemeral=False)
             await interaction.followup.send(
@@ -166,10 +166,6 @@ def run_discord_bot():
     @app_commands.choices(choices=[
         app_commands.Choice(name="Official GPT-3.5", value="OFFICIAL"),
         app_commands.Choice(name="Ofiicial GPT-4.0", value="OFFICIAL-GPT4"),
-        app_commands.Choice(name="Website ChatGPT-3.5", value="UNOFFICIAL"),
-        app_commands.Choice(name="Website ChatGPT-4.0", value="UNOFFICIAL-GPT4"),
-        app_commands.Choice(name="Bard", value="Bard"),
-        app_commands.Choice(name="Bing", value="Bing"),
     ])
 
     async def chat_model(interaction: discord.Interaction, choices: app_commands.Choice[str]):
@@ -184,16 +180,6 @@ def run_discord_bot():
             elif choices.value == "OFFICIAL-GPT4":
                 client.openAI_gpt_engine = "gpt-4"
                 client.chat_model = "OFFICIAL"
-            elif choices.value == "UNOFFICIAL":
-                client.openAI_gpt_engine = "gpt-3.5-turbo"
-                client.chat_model = "UNOFFICIAL"
-            elif choices.value == "UNOFFICIAL-GPT4":
-                client.openAI_gpt_engine = "gpt-4"
-                client.chat_model = "UNOFFICIAL"
-            elif choices.value == "Bard":
-                client.chat_model = "Bard"
-            elif choices.value == "Bing":
-                client.chat_model = "Bing"
             else:
                 raise ValueError("Invalid choice")
 
