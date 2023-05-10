@@ -53,7 +53,7 @@ def run_discord_bot():
         username = str(interaction.user)
         channel = str(interaction.channel)
         logger.info("Interaction.channel is: " + str(interaction.channel))
-        await client.enqueue_message(interaction, f"{''.join(open('./prompts/startsession.txt', 'r').readlines()).strip()} {(await db['code-games']['test'].find_one({}))['ai_summary']}")
+        await client.enqueue_message(interaction, f"{''.join(open('./prompts/startsession.txt', 'r').readlines()).strip()} {(await db['code-games'][str(os.getenv('REPLYING_ALL_DISCORD_CHANNEL_ID'))].find_one({}))['ai_summary']}")
         logger.info("Working session with tickets started")
 
     @client.tree.command(name="ticket", description="Add new ticket")

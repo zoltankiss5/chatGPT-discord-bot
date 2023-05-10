@@ -16,6 +16,8 @@ from pymongo.server_api import ServerApi
 logger = log.setup_logger(__name__)
 load_dotenv()
 
+DEBUG = False
+
 db = AsyncIOMotorClient(os.getenv("MONGO_CONN_URI"), server_api=ServerApi('1'))
 
 config_dir = os.path.abspath(f"{__file__}/../../")
@@ -77,12 +79,15 @@ class aclient(discord.Client):
                 chat_model_status = f'ChatGPT {self.openAI_gpt_engine}'
             elif self.chat_model == "OFFICIAL":
                 chat_model_status = f'OpenAI {self.openAI_gpt_engine}'
-            response = (f'> **{user_message}** - <@{str(author)}> ({chat_model_status}) \n\n')
+            if DEBUG:
+                response = (f'> **{user_message}** - <@{str(author)}> ({chat_model_status}) \n\n')
+            else:
+                response = ""
             if self.chat_model == "OFFICIAL":
                 ai_response = await responses.official_handle_response(user_message, self)
                 if "summary" == user_message.strip().lower():
                     persisted_record = {"ai_summary": ai_response, "timestamp": dt.datetime.utcnow()}
-                    print(await db["code-games"]["test"].insert_one(persisted_record))
+                    print(await db["code-games"][str(os.getenv("REPLYING_ALL_DISCORD_CHANNEL_ID"))].insert_one(persisted_record))
                 response = f"{response}{ai_response}"
             char_limit = 1900
 
