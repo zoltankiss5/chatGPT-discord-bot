@@ -1,6 +1,7 @@
 import os
 import discord
 import asyncio
+import datetime as dt
 from typing import Union
 from src import log, responses
 from dotenv import load_dotenv
@@ -9,9 +10,13 @@ from Bard import Chatbot as BardChatbot
 from revChatGPT.V3 import Chatbot
 from revChatGPT.V1 import AsyncChatbot
 from EdgeGPT import Chatbot as EdgeChatbot
+from motor.motor_asyncio import AsyncIOMotorClient
+from pymongo.server_api import ServerApi
 
 logger = log.setup_logger(__name__)
 load_dotenv()
+
+db = AsyncIOMotorClient(os.getenv("MONGO_CONN_URI"), server_api=ServerApi('1'))
 
 config_dir = os.path.abspath(f"{__file__}/../../")
 prompt_name = 'system_prompt.txt'
@@ -45,11 +50,7 @@ class aclient(discord.Client):
         if self.chat_model == "UNOFFICIAL":
             return AsyncChatbot(config={"email": self.openAI_email, "password": self.openAI_password, "access_token": self.chatgpt_access_token, "model": self.openAI_gpt_engine, "paid": self.chatgpt_paid})
         elif self.chat_model == "OFFICIAL":
-                return Chatbot(api_key=self.openAI_API_key, engine=self.openAI_gpt_engine, system_prompt=prompt)
-        elif self.chat_model == "Bard":
-            return BardChatbot(session_id=self.bard_session_id)
-        elif self.chat_model == "Bing":
-            return EdgeChatbot(cookie_path='./cookies.json')
+            return Chatbot(api_key=self.openAI_API_key, engine=self.openAI_gpt_engine, system_prompt=prompt)
 
     async def process_messages(self):
         while True:
@@ -78,14 +79,13 @@ class aclient(discord.Client):
                 chat_model_status = f'OpenAI {self.openAI_gpt_engine}'
             response = (f'> **{user_message}** - <@{str(author)}> ({chat_model_status}) \n\n')
             if self.chat_model == "OFFICIAL":
-                response = f"{response}{await responses.official_handle_response(user_message, self)}"
-            elif self.chat_model == "UNOFFICIAL":
-                response = f"{response}{await responses.unofficial_handle_response(user_message, self)}"
-            elif self.chat_model == "Bard":
-                response = f"{response}{await responses.bard_handle_response(user_message, self)}"
-            elif self.chat_model == "Bing":
-                response = f"{response}{await responses.bing_handle_response(user_message, self)}"
+                ai_response = await responses.official_handle_response(user_message, self)
+                if "summary" == user_message.strip().lower():
+                    persisted_record = {"ai_summary": ai_response, "timestamp": dt.datetime.utcnow()}
+                    print(await db["code-games"]["test"].insert_one(persisted_record))
+                response = f"{response}{ai_response}"
             char_limit = 1900
+
             if len(response) > char_limit:
                 # Split the response into smaller chunks of no more than 1900 characters each(Discord limit is 2000 per chunk)
                 if "```" in response:

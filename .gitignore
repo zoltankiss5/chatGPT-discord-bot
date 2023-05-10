@@ -1,3 +1,8 @@
+# kaeritai
+*.env
+*.env.example
+system_prompt.txt
+
 # Generated image files
 images/
 
